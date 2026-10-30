@@ -1,0 +1,51 @@
+<idea-plugin>
+    <id>com.conorobrien.godebug</id>
+    <name>Go Debug</name>
+    <vendor>Conor O'Brien</vendor>
+    <description><![CDATA[
+        <p>Run and debug Go programs and tests in the free IntelliJ IDEA, powered by
+        <a href="https://github.com/go-delve/delve">Delve</a> through the IDE's built-in Debug Adapter Protocol client.</p>
+        <ul>
+            <li>A <b>Go</b> run configuration for packages and tests, with arguments, build flags, working directory and environment</li>
+            <li>Line breakpoints in <code>.go</code> files, conditions, stepping, call stacks, goroutines, variables and expression evaluation</li>
+            <li><b>Run / Debug Go Package</b> from the editor's right-click menu</li>
+        </ul>
+        <p>Requires Delve: <code>go install github.com/go-delve/delve/cmd/dlv@latest</code>.</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.xdebugger</depends>
+
+    <!-- intellij.platform.dap is a public product module with its own classloader. -->
+    <dependencies>
+        <module name="intellij.platform.dap"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="com.conorobrien.godebug.GoRunConfigurationType"/>
+        <xdebugger.breakpointType implementation="com.conorobrien.godebug.GoLineBreakpointType"/>
+        <notificationGroup id="Go Debug" displayType="BALLOON"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij.platform.dap">
+        <debugAdapterSupportProvider implementation="com.conorobrien.godebug.DelveSupportProvider"/>
+        <launchArgumentsProvider implementation="com.conorobrien.godebug.DelveLaunchArgumentsProvider"/>
+    </extensions>
+
+    <actions>
+        <group id="com.conorobrien.godebug.EditorActions">
+            <action id="com.conorobrien.godebug.RunPackage"
+                    class="com.conorobrien.godebug.RunGoPackageAction"
+                    text="Run Go Package"
+                    description="Run the Go package (or its tests, in a _test.go file) that contains this file"
+                    icon="AllIcons.Actions.Execute"/>
+            <action id="com.conorobrien.godebug.DebugPackage"
+                    class="com.conorobrien.godebug.DebugGoPackageAction"
+                    text="Debug Go Package"
+                    description="Debug the Go package (or its tests, in a _test.go file) with Delve"
+                    icon="AllIcons.Actions.StartDebugger"/>
+            <separator/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </group>
+    </actions>
+</idea-plugin>
